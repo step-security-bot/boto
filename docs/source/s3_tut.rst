@@ -118,7 +118,7 @@ this worked, quit out of the interpreter and start it up again.  Then::
 
     >>> import boto
     >>> c = boto.connect_s3()
-    >>> b = c.get_bucket('mybucket') # substitute your bucket name here
+    >>> b = c.get_private_bucket('mybucket') # substitute your bucket name here
     >>> from boto.s3.key import Key
     >>> k = Key(b)
     >>> k.key = 'foobar'
@@ -153,7 +153,7 @@ exists within a bucket, you can skip the check for a key on the server.
 
     >>> import boto
     >>> c = boto.connect_s3()
-    >>> b = c.get_bucket('mybucket') # substitute your bucket name here
+    >>> b = c.get_private_bucket('mybucket') # substitute your bucket name here
 
     # Will hit the API to check if it exists.
     >>> possible_key = b.get_key('mykey') # substitute your key name here
@@ -180,7 +180,7 @@ to be taken. The example below makes use of the FileChunkIO module, so
 
     # Connect to S3
     >>> c = boto.connect_s3()
-    >>> b = c.get_bucket('mybucket')
+    >>> b = c.get_private_bucket('mybucket')
 
     # Get file info
     >>> source_path = 'path/to/your/file.ext'
@@ -222,14 +222,14 @@ Accessing A Bucket
 
 Once a bucket exists, you can access it by getting the bucket. For example::
 
-    >>> mybucket = conn.get_bucket('mybucket') # Substitute in your bucket name
+    >>> mybucket = conn.get_private_bucket('mybucket') # Substitute in your bucket name
     >>> mybucket.list()
     ...listing of keys in the bucket...
 
 By default, this method tries to validate the bucket's existence. You can
 override this behavior by passing ``validate=False``.::
 
-    >>> nonexistent = conn.get_bucket('i-dont-exist-at-all', validate=False)
+    >>> nonexistent = conn.get_private_bucket('i-dont-exist-at-all', validate=False)
 
 .. versionchanged:: 2.25.0
 .. warning::
@@ -248,7 +248,7 @@ override this behavior by passing ``validate=False``.::
     If you were relying on parsing the error message before, you should call
     something like::
 
-        bucket = conn.get_bucket('<bucket_name>', validate=False)
+        bucket = conn.get_private_bucket('<bucket_name>', validate=False)
         bucket.get_all_keys(maxkeys=0)
 
 If the bucket does not exist, a ``S3ResponseError`` will commonly be thrown. If
@@ -271,7 +271,7 @@ Removing a bucket can be done using the ``delete_bucket`` method. For example::
 The bucket must be empty of keys or this call will fail & an exception will be
 raised. You can remove a non-empty bucket by doing something like::
 
-    >>> full_bucket = conn.get_bucket('bucket-to-delete')
+    >>> full_bucket = conn.get_private_bucket('bucket-to-delete')
     # It's full of keys. Delete them all.
     >>> for key in full_bucket.list():
     ...     key.delete()
@@ -459,7 +459,7 @@ bucket::
 
     >>> import boto
     >>> c = boto.connect_s3()
-    >>> bucket = c.get_bucket('s3-glacier-boto-demo')
+    >>> bucket = c.get_private_bucket('s3-glacier-boto-demo')
 
 Then we can create a lifecycle object.  In our example, we want all objects
 under ``logs/*`` to transition to Glacier 30 days after the object is created.
@@ -514,7 +514,7 @@ to keep the object in S3.
 
     >>> import boto
     >>> c = boto.connect_s3()
-    >>> bucket = c.get_bucket('s3-glacier-boto-demo')
+    >>> bucket = c.get_private_bucket('s3-glacier-boto-demo')
     >>> key = bucket.get_key('logs/testlog1.log')
     >>> key.restore(days=5)
 

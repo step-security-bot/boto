@@ -9,14 +9,14 @@ well as various other small fixes. Also included is an opt-in to use signature
 version 4 with Amazon EC2.
 
 **IMPORTANT** - This release also include a **SIGNIFICANT** underlying change
-to the Amazon S3 ``get_bucket`` method, to addresses the blog post by AppNeta_.
+to the Amazon S3 ``get_private_bucket`` method, to addresses the blog post by AppNeta_.
 We've altered the default behavior to now perform a ``HEAD`` on the bucket, in
 place of the old ``GET`` behavior (which would fetch a zero-length list of
 keys).
 
 This should reduce all users costs & should also be *mostly*
 backward-compatible. **HOWEVER**, if you were previously parsing the exception
-message from ``S3Connection.get_bucket``, you *will* have to change your code
+message from ``S3Connection.get_private_bucket``, you *will* have to change your code
 (see the S3 tutorial for details). ``HEAD`` does *not* return as detailed of
 error messages & while we've attempted to patch over as much of the differences
 as we can, there may still be edge-cases over the prior behavior.
@@ -44,7 +44,7 @@ Features
 Bugfixes
 --------
 
-* Changed S3 ``get_bucket`` to use ``HEAD`` in place of ``GET``. (:issue:`2078`,
+* Changed S3 ``get_private_bucket`` to use ``HEAD`` in place of ``GET``. (:issue:`2078`,
   :issue:`2082`, :sha:`016be83`)
 * Fix EMR's describe_cluster_command. (:issue:`2034`, :sha:`1c5621e`)
 * Tutorial small code fix (:issue:`2072`, :sha:`38e7db1`)

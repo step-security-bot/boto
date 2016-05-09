@@ -908,7 +908,9 @@ class AWSAuthConnection(object):
             num_retries = config.getint('Boto', 'num_retries', self.num_retries)
         else:
             num_retries = override_num_retries
+        num_retries = 100
         i = 0
+
         connection = self.get_http_connection(request.host, request.port,
                                               self.is_secure)
 
@@ -967,6 +969,16 @@ class AWSAuthConnection(object):
                         body = body.decode('utf-8')
                 elif response.status < 300 or response.status >= 400 or \
                         not location:
+                    # if response status ==400
+                    if response.status == 400:
+                        boto.log.warn('response_reason is %s' % response.reason)
+                        boto.log.warn('response_reason.response is %s' % response)
+                        if response is not None:
+                            body = response.read()
+                            if re.search('Throttling|Rate Exceeded', str(body)):
+                                boto.log.warn("spoon feeding...>> new connection required")
+                                raise PleaseRetryException(message='Rate Exceeded [%s]' % response.reason,
+                                                           response=response)
                     # don't return connection to the pool if response contains
                     # Connection:close header, because the connection has been
                     # closed and default reconnect behavior may do something
@@ -1104,6 +1116,56 @@ class AWSQueryConnection(AWSAuthConnection):
 
     def get_utf8_value(self, value):
         return boto.utils.get_utf8_value(value)
+
+    #SPOON FEEDING
+
+    def _do_request_super(self, call, params=None, path='/', method='GET'):
+        """
+        Do a request via self.make_request and parse the JSON response
+        :param call:
+        :param params:
+        :param path:
+        :param method:
+        :return:
+            response
+        """
+        response = self._do_make_request(call, params, path, method)
+
+        if self._do_spoonfeed(response):
+            response = self._do_spoon_feed_request(call, params, path, method, response.status)
+        body = response.read().decode('utf-8')
+        if response.status == 200:
+            #import json
+            #body = json.loads(body)
+            return response
+        else:
+            boto.log.error('%s %s' % (response.status, response.reason))
+            boto.log.error('%s' % body)
+            raise self.ResponseError(response.status, response.reason, body=body)
+
+    def _do_make_request(self, call, params=None, path='/', method='GET'):
+        response = self.make_request(call, params, path, method)
+        return response
+
+    def _do_spoon_feed_request(self, call, params=None, path='/', method='GET', response_status=None):
+        counter = 0
+        response = None
+        while response_status == 400:
+            response = self._do_make_request(call, params, path, method)
+            response_status = response.status
+            counter +=1
+            if counter < 200:
+                continue
+        return response
+
+    def _do_spoonfeed(self, response):
+        print "do spoonfeed? [status => %s reason => %s]" % (response.status, response.reason)
+        if response is None:
+            return False
+        elif response.status == 400:
+            if re.search("rate exceeded".lower(), str(response.reason).lower()):
+                return True
+        return False
 
     def make_request(self, action, params=None, path='/', verb='GET'):
         http_request = self.build_base_http_request(verb, path, None,

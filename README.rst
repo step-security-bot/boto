@@ -11,6 +11,9 @@ Released: 9-Apr-2015
 .. image:: https://pypip.in/d/boto/badge.svg
         :target: https://pypi.python.org/pypi/boto/
 
+********************
+tweaks : 2.39.2dm
+********************
 ******
 Boto 3
 ******

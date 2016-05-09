@@ -112,7 +112,6 @@ class KMSConnection(AWSQueryConnection):
         "NotFoundException": exceptions.NotFoundException,
     }
 
-
     def __init__(self, **kwargs):
         region = kwargs.pop('region', None)
         if not region:

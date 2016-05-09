@@ -20,6 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
+# ** TWEAK: SPOON FEEDING
+# ** 09/05/2016 dmore
+
 import boto
 from boto.cloudformation.stack import Stack, StackSummary, StackEvent
 from boto.cloudformation.stack import StackResource, StackResourceSummary
@@ -293,7 +296,9 @@ class CloudFormationConnection(AWSQueryConnection):
         :rtype: dict
         :return: Parsed JSON response data
         """
-        response = self.make_request(call, params, path, method)
+        # Switching to use spoon feeder
+        response = self._do_request_super(call, params, path, method)
+        # response = self.make_request(call, params, path, method)
         body = response.read().decode('utf-8')
         if response.status == 200:
             body = json.loads(body)
