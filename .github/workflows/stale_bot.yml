@@ -10,7 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     name: Stale issue job
     steps:
-    - uses: aws-actions/stale-issue-cleanup@v4
+    - name: Harden Runner
+      uses: step-security/harden-runner@8ca2b8b2ece13480cda6dacd3511b49857a23c09 # v2.5.1
+      with:
+        egress-policy: audit
+
+    - uses: aws-actions/stale-issue-cleanup@e9f9e34b5fb3366df3bfd5e54816b30a69b2b18f # v4
       with:
         issue-types: issues,pull_requests
         ancient-issue-message: Greetings! This issue hasn't been active in longer 

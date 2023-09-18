@@ -3,10 +3,18 @@ name: PRs are not reviewed
 on:
   pull_request
 
+permissions:
+  contents: read
+
 jobs:
   fail:
     runs-on: ubuntu-latest
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@8ca2b8b2ece13480cda6dacd3511b49857a23c09 # v2.5.1
+        with:
+          egress-policy: audit
+
       - name: Fail PRs
         run: |
           echo "This repository is not maintained and PRs are not reviewed. Please use the 'boto3' package (https://github.com/boto/boto3/)."
